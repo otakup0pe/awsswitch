@@ -3,7 +3,7 @@ AWS Switch
 
 These scripts represent my approach for sanely working with multiple AWS accounts. When in use it will keep appropriate AWS related environment variables, and, optionally, certain configuration files up to date with the appropriate AWS keys. Only one AWS account may be active at a time and this is synchronized across login sessions for a given user on the local host.
 
-I [wrote|http://blog.eghetto.ca/post/112089594641/juggling-clouds] about how I ended up with this workflow.
+I [wrote](http://blog.eghetto.ca/post/112089594641/juggling-clouds) about how I ended up with this workflow.
 
 Installation
 ------------
