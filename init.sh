@@ -2,7 +2,7 @@
 
 function awsswitch()
 {
-    AWS="${1}"
+    local AWS="${1}"
     if [ "$AWS" == "" ] ; then
         echo "invalid aws"
     else
@@ -16,5 +16,16 @@ function awsswitch()
                 "${AWSSWITCH_PATH}/awsswitch.sh" use $1 && eval $("${AWSSWITCH_PATH}/awsswitch.sh" eval)
             fi
         fi
+    fi
+}
+
+function awsregion()
+{
+    local REGION="${1}"
+    aws ec2 describe-regions | cut -f 3 | grep $REGION &> /dev/null
+    if [ $? != 0 ] ; then
+        echo "invalid region"
+    else
+        AWS_DEFAULT_REGION=$REGION
     fi
 }

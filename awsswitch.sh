@@ -27,7 +27,7 @@ function aws_use {
     else
         T="${TMPDIR}/awsswitch${RANDOM}"
     fi
-    grep -A 2 -e "^#"$NAME"$" $AWSSWITCH_KEYS &> $T
+    grep -A 3 -e "^#"$NAME"$" $AWSSWITCH_KEYS &> $T
     if [ $? == 0 ] ; then
         mv $T $AWSSWITCH_CURRENT ; chmod 0600 $AWSSWITCH_CURRENT
     else
@@ -38,8 +38,12 @@ function aws_use {
 
 function aws_eval {
     if [ -e $AWSSWITCH_CURRENT ] ; then
-        KEY="$(tail -n 2 $AWSSWITCH_CURRENT | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
-        SECRET="$(tail -n 1 $AWSSWITCH_CURRENT | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        REGION="$(tail -n 1 $AWSSWITCH_CURRENT | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        KEY="$(tail -n 3 $AWSSWITCH_CURRENT | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        SECRET="$(tail -n 2 $AWSSWITCH_CURRENT | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        if [ "$AWS_SECRET_KEY" != "$SECRET" ] || [ "$AWS_DEFAULT_REGION" == "" ] ; then
+            echo "export AWS_DEFAULT_REGION=$REGION"
+        fi
         echo "export AWS_ACCOUNT=$(head -n 1 $AWSSWITCH_CURRENT | cut -f 2 -d '#')"
         echo "export AWS_ACCESS_KEY_ID=$KEY"
         echo "export AWS_SECRET_ACCESS_KEY=$SECRET"
@@ -65,6 +69,7 @@ function aws_eval {
         fi
     else
         echo "export AWS_ACCOUNT=none"
+        echo "export AWS_DEFAULT_REGION=\"\""
     fi
 }
 

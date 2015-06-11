@@ -25,7 +25,7 @@ export AWSSWITCH_FOG="true"
 . "${AWSSWITCH_PATH}/init.sh"
 ```
 
-There is an additional component that is meant to be eval'd in the `PS1_COMMAND` context. This helps ensure that the AWS configuration is not only consistent across terminals but also that it may be visualized in the bash prompt. After this eval the `AWS_ACCOUNT` environment variable will be set to the name of the current AWS account.
+There is an additional component that is meant to be eval'd in the `PS1_COMMAND` context. This helps ensure that the AWS configuration is not only consistent across terminals but also that it may be visualized in the bash prompt. After this eval the `AWS_ACCOUNT` environment variable will be set to the name of the current AWS account. In addition, the `AWS_DEFAULT_REGION` environment variable will be updated upon switching to a _new_ aws profile.
 
 #### eval Example
 
@@ -42,6 +42,7 @@ The AWS configuration is stored in a simple yaml file. It is a list of id/secret
 #my-aws
 - id: My Key
   secret: My Secret
+  region: Default Region
 ...
 ```
 
@@ -59,6 +60,7 @@ The script will keep the following environment variables updated accordingly.
 * `AWS_ACCESS_KEY` AWS access key ID used by some older apps
 * `AWS_SECRET_ACCESS_KEY` AWS secret access key
 * `AWS_SECRET_KEY` AWS secret access key used by some older apps
+* `AWS_DEFAULT_REGION` the default region to use for many apps
 
 ## s3cfg
 
@@ -83,4 +85,8 @@ default:
 Usage
 -----
 
-Once you have initialized the script in your `.profile` usage is dead simple. Simply make use of the `awsswitch` command and reference one of the sets of AWS keys in your YAML configuration. This will then cause your current terminal context to be re-initialized. Other terminal contexts will _not_ be re-initialized until the next command concludes. This is where the inclusion of the `AWS_ACCOUNT` variable in your bash prompt is helpful as you can easily know which AWS account is currently active.
+Once you have initialized the script in your `.profile` usage is dead simple. Simply make use of the `awsswitch` function and reference one of the sets of AWS keys in your YAML configuration. This will then cause your current terminal context to be re-initialized. For example, to switch to the `my-aws` AWS account you would invoke `awsswitch my-aws`.
+
+Other terminal contexts will _not_ be re-initialized until the next time the `PS1_COMMAND` context is evaluated. The `awsregion` function may be used to change the effective AWS region for the _current_ shell only. This override is lost upon switching AWS accounts.
+
+This is where the inclusion of the `AWS_ACCOUNT` variable in your bash prompt is helpful as you can easily know which AWS account is currently active.
