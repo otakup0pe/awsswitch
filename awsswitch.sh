@@ -56,16 +56,16 @@ function aws_eval {
             chmod 600 $AWS_AUTOSCALE_CREDENTIAL_FILE
         fi
         if [ "$AWSSWITCH_S3CFG" == "true" ] ; then
-	        echo "[default]" > ~/.s3cfg
-	        echo "access_key = ${KEY}" >> ~/.s3cfg
-	        echo "secret_key = ${SECRET}" >> ~/.s3cfg
-	        chmod 600 ~/.s3cfg
+	        echo "[default]" > "${HOME}/.s3cfg"
+	        echo "access_key = ${KEY}" >> "${HOME}/.s3cfg"
+	        echo "secret_key = ${SECRET}" >> "${HOME}/.s3cfg"
+	        chmod 600 "${HOME}/.s3cfg"
         fi
         if [ "$AWSSWITCH_FOG" == "true" ] ; then
-            echo "default:" > ~/.fog
-            echo "    aws_access_key_id: ${KEY}" >> ~/.fog
-            echo "    aws_secret_access_key: ${SECRET}" >> ~/.fog
-            chmod 600 ~/.fog
+            echo "default:" > "${HOME}/.fog"
+            echo "    aws_access_key_id: ${KEY}" >> "${HOME}/.fog"
+            echo "    aws_secret_access_key: ${SECRET}" >> "${HOME}/.fog"
+            chmod 600 "${HOME}/.fog"
         fi
     else
         echo "export AWS_ACCOUNT=none"
