@@ -20,6 +20,10 @@ if [ "$AWS_AUTO_SCALING_HOME" != "" ] ; then
     AWS_AUTOSCALE_CREDENTIAL_FILE=${AWS_AUTO_SCALING_HOME}/creds
 fi
 
+function aws_list {
+    grep -e '^#[^ ]' $AWSSWITCH_KEYS | cut -c 2-
+}
+
 function aws_use {
     NAME="$1"
     if [ "$TMPDIR" == "" ] ; then
@@ -82,6 +86,8 @@ if [ $# == 2 ] ; then
 elif [ $# == 1 ] ; then
     if [ $1 == "eval" ] ; then
         aws_eval
+    elif [ $1 == "list" ] ; then
+        aws_list
     else
         usage
     fi

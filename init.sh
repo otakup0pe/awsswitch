@@ -29,3 +29,8 @@ function awsregion()
         AWS_DEFAULT_REGION=$REGION
     fi
 }
+
+function awslist()
+{
+    "${AWSSWITCH_PATH}/awsswitch.sh" list
+}
