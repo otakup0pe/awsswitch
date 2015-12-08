@@ -53,6 +53,7 @@ function aws_eval {
         echo "export AWS_SECRET_ACCESS_KEY=$SECRET"
         echo "export AWS_ACCESS_KEY=$KEY"
         echo "export AWS_SECRET_KEY=$SECRET"
+        echo "export EC2_REGION=$AWS_DEFAULT_REGION"
 
         if [ "$AWS_AUTOSCALE_CREDENTIAL_FILE" != "" ] ; then
             echo "AWSAccessKeyId=$KEY" > $AWS_AUTOSCALE_CREDENTIAL_FILE
