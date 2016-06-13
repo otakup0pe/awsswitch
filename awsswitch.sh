@@ -1,4 +1,4 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 
 function problems {
     echo "ERROR $1"
@@ -26,7 +26,7 @@ function aws_list {
 
 function aws_use {
     NAME="$1"
-    if [ "$TMPDIR" == "" ] ; then
+    if [ -z "$TMPDIR" ] ; then
         T="/tmp/awsswitch${RANDOM}"
     else
         T="${TMPDIR}/awsswitch${RANDOM}"
@@ -45,7 +45,7 @@ function aws_eval {
         REGION="$(tail -n 1 $AWSSWITCH_CURRENT | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
         KEY="$(tail -n 3 $AWSSWITCH_CURRENT | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
         SECRET="$(tail -n 2 $AWSSWITCH_CURRENT | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
-        if [ "$AWS_SECRET_KEY" != "$SECRET" ] || [ "$AWS_DEFAULT_REGION" == "" ] ; then
+        if [ "$AWS_SECRET_KEY" != "$SECRET" ] || [ -z "$AWS_DEFAULT_REGION" ] ; then
             echo "export AWS_DEFAULT_REGION=$REGION"
         fi
         echo "export AWS_ACCOUNT=$(head -n 1 $AWSSWITCH_CURRENT | cut -f 2 -d '#')"
@@ -55,7 +55,7 @@ function aws_eval {
         echo "export AWS_SECRET_KEY=$SECRET"
         echo "export EC2_REGION=$AWS_DEFAULT_REGION"
 
-        if [ "$AWS_AUTOSCALE_CREDENTIAL_FILE" != "" ] ; then
+        if [ ! -z "$AWS_AUTOSCALE_CREDENTIAL_FILE" ] ; then
             echo "AWSAccessKeyId=$KEY" > $AWS_AUTOSCALE_CREDENTIAL_FILE
             echo "AWSSecretKey=$SECRET" >> $AWS_AUTOSCALE_CREDENTIAL_FILE
             chmod 600 $AWS_AUTOSCALE_CREDENTIAL_FILE

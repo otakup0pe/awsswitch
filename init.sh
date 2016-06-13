@@ -3,14 +3,13 @@
 function awsswitch()
 {
     local AWS="${1}"
-    if [ "$AWS" == "" ] ; then
+    if [ -z "$AWS" ] ; then
         echo "invalid aws"
     else
         if [ "${AWS}" == "none" ] ; then
             rm "${HOME}/.awsaccount" &> /dev/null
         else
-            grep -e "${AWS}" "${HOME}/.aws.yml" &> /dev/null
-            if [ $? != 0 ] ; then
+            if ! grep -e "${AWS}" "${HOME}/.aws.yml" &> /dev/null ; then
                 echo "invalid aws"
             else
                 "${AWSSWITCH_PATH}/awsswitch.sh" use $1 && eval $("${AWSSWITCH_PATH}/awsswitch.sh" eval)
@@ -22,8 +21,7 @@ function awsswitch()
 function awsregion()
 {
     local REGION="${1}"
-    aws ec2 describe-regions | cut -f 3 | grep $REGION &> /dev/null
-    if [ $? != 0 ] ; then
+    if ! aws ec2 describe-regions | cut -f 3 | grep $REGION &> /dev/null ; then
         echo "invalid region"
     else
         AWS_DEFAULT_REGION=$REGION
