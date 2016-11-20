@@ -21,7 +21,7 @@ if [ "$AWS_AUTO_SCALING_HOME" != "" ] ; then
 fi
 
 function aws_list {
-    grep -e '^#[^ ]' $AWSSWITCH_KEYS | cut -c 2-
+    grep -e '^#[^ ]' "$AWSSWITCH_KEYS" | cut -c 2-
 }
 
 function aws_use {
@@ -31,24 +31,23 @@ function aws_use {
     else
         T="${TMPDIR}/awsswitch${RANDOM}"
     fi
-    grep -A 3 -e "^#"$NAME"$" $AWSSWITCH_KEYS &> $T
-    if [ $? == 0 ] ; then
-        mv $T $AWSSWITCH_CURRENT ; chmod 0600 $AWSSWITCH_CURRENT
+    if grep -A 3 -e "^#${NAME}$" "$AWSSWITCH_KEYS" &> "$T" ; then
+        mv "$T" "$AWSSWITCH_CURRENT" ; chmod 0600 "$AWSSWITCH_CURRENT"
     else
-        rm -f $T
+        rm -f "$T"
         problems "awsaccount not found"
     fi
 }
 
 function aws_eval {
-    if [ -e $AWSSWITCH_CURRENT ] ; then
-        REGION="$(tail -n 1 $AWSSWITCH_CURRENT | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
-        KEY="$(tail -n 3 $AWSSWITCH_CURRENT | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
-        SECRET="$(tail -n 2 $AWSSWITCH_CURRENT | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+    if [ -e "$AWSSWITCH_CURRENT" ] ; then
+        REGION="$(tail -n 1 "$AWSSWITCH_CURRENT" | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        KEY="$(tail -n 3 "$AWSSWITCH_CURRENT" | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        SECRET="$(tail -n 2 "$AWSSWITCH_CURRENT" | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
         if [ "$AWS_SECRET_KEY" != "$SECRET" ] || [ -z "$AWS_DEFAULT_REGION" ] ; then
             echo "export AWS_DEFAULT_REGION=$REGION"
         fi
-        echo "export AWS_ACCOUNT=$(head -n 1 $AWSSWITCH_CURRENT | cut -f 2 -d '#')"
+        echo "export AWS_ACCOUNT=$(head -n 1 "$AWSSWITCH_CURRENT" | cut -f 2 -d '#')"
         echo "export AWS_ACCESS_KEY_ID=$KEY"
         echo "export AWS_SECRET_ACCESS_KEY=$SECRET"
         echo "export AWS_ACCESS_KEY=$KEY"
@@ -56,9 +55,9 @@ function aws_eval {
         echo "export EC2_REGION=$AWS_DEFAULT_REGION"
 
         if [ ! -z "$AWS_AUTOSCALE_CREDENTIAL_FILE" ] ; then
-            echo "AWSAccessKeyId=$KEY" > $AWS_AUTOSCALE_CREDENTIAL_FILE
-            echo "AWSSecretKey=$SECRET" >> $AWS_AUTOSCALE_CREDENTIAL_FILE
-            chmod 600 $AWS_AUTOSCALE_CREDENTIAL_FILE
+            echo "AWSAccessKeyId=$KEY" > "$AWS_AUTOSCALE_CREDENTIAL_FILE"
+            echo "AWSSecretKey=$SECRET" >> "$AWS_AUTOSCALE_CREDENTIAL_FILE"
+            chmod 600 "$AWS_AUTOSCALE_CREDENTIAL_FILE"
         fi
         if [ "$AWSSWITCH_S3CFG" == "true" ] ; then
 	        echo "[default]" > "${HOME}/.s3cfg"
@@ -79,15 +78,15 @@ function aws_eval {
 }
 
 if [ $# == 2 ] ; then
-    if [ $1 == "use" ] ; then
-        aws_use $2
+    if [ "$1" == "use" ] ; then
+        aws_use "$2"
     else
         usage
     fi
 elif [ $# == 1 ] ; then
-    if [ $1 == "eval" ] ; then
+    if [ "$1" == "eval" ] ; then
         aws_eval
-    elif [ $1 == "list" ] ; then
+    elif [ "$1" == "list" ] ; then
         aws_list
     else
         usage
