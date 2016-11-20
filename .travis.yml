@@ -4,4 +4,4 @@ language: python
 services:
 - docker
 
-script: "make test"
+script: "make test ; sleep 299"
