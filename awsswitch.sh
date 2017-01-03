@@ -31,11 +31,27 @@ function aws_use {
     else
         T="${TMPDIR}/awsswitch${RANDOM}"
     fi
-    if grep -A 3 -e "^#${NAME}$" "$AWSSWITCH_KEYS" &> "$T" ; then
+    if [ "$AWSSWITCH_CONFIG" == "awscli" ] ; then
+        REGION=$(grep -A 1 -E "^\[profile ${NAME}\]$" "${HOME}/.aws/config" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+        KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
+        SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+        if [ -z "$REGION" ] || \
+               [ -z "$KEY" ] || \
+               [ -z "$SECRET" ] ; then
+           problems "awsaccount not found"
+        fi
+        echo "#${NAME}" > "$T"
+        echo "- id: \"${KEY}\"" >> "$T"
+        echo "  secret: \"${SECRET}\""  >> "$T"
+        echo "  region: \"${REGION}\"" >> "$T"
         mv "$T" "$AWSSWITCH_CURRENT" ; chmod 0600 "$AWSSWITCH_CURRENT"
     else
-        rm -f "$T"
-        problems "awsaccount not found"
+        if grep -A 3 -e "^#${NAME}$" "$AWSSWITCH_KEYS" &> "$T" ; then
+            mv "$T" "$AWSSWITCH_CURRENT" ; chmod 0600 "$AWSSWITCH_CURRENT"
+        else
+            rm -f "$T"
+            problems "awsaccount not found"
+        fi
     fi
 }
 
