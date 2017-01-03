@@ -14,6 +14,7 @@ Clone this repository somewhere comfortable on your workstation. There are four 
  * `AWSSWITCH_KEYS` points to a yaml file containing your AWS keys
  * `AWSSWITCH_S3CFG` set to `true` if you want the script to update your `.s3cfg`
  * `AWSSWITCH_FOG` set to `true` if you want the script to update your `.fog`
+ * `AWSSWITCH_CONFIG` can be set to `awscli` to read credentials from the [AWS configuration files](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)
 
 #### `.profile` Example
 ```
@@ -45,6 +46,8 @@ The AWS configuration is stored in a simple yaml file. It is a list of id/secret
   region: Default Region
 ...
 ```
+
+You can also set the `AWSSWITCH_CONFIG` variable to `awscli` to just use the normal AWS configuration files.
 
 Script Actions
 --------------

@@ -1,0 +1,7 @@
+sudo: false
+language: python
+
+services:
+- docker
+
+script: "make test"
