@@ -10,7 +10,7 @@ function usage {
     exit 1
 }
 
-if [ "$AWSSWITCH_KEYS" == "" ] ; then
+if [ "$AWSSWITCH_CONFIG" != "awscli" ] && [ "$AWSSWITCH_KEYS" == "" ] ; then
     problems "AWSSWITCH_KEYS is not defined"
     exit 1
 fi
@@ -33,6 +33,11 @@ function aws_use {
     fi
     if [ "$AWSSWITCH_CONFIG" == "awscli" ] ; then
         REGION=$(grep -A 1 -E "^\[profile ${NAME}\]$" "${HOME}/.aws/config" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+        # default region if not in config file.
+        if [ -z "$REGION" ]; then
+          REGION="us-east-1"
+        fi
+
         KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
         SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
         if [ -z "$REGION" ] || \
