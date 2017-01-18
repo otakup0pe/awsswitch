@@ -6,10 +6,10 @@ function awsswitch()
     if [ -z "$AWS" ] ; then
         echo "invalid aws"
     else
-        if [ "${AWS}" == "none" ] ; then
+        if [ "${AWS}" = "none" ] ; then
             rm "${HOME}/.awsaccount" &> /dev/null
         else
-            if ! grep -e "${AWS}" "${HOME}/.aws.yml" &> /dev/null ; then
+            if [ "$AWSSWITCH_CONFIG" != "awscli" ] && ! grep -e "${AWS}" "${HOME}/.aws.yml" &> /dev/null ; then
                 echo "invalid aws"
             else
                 "${AWSSWITCH_PATH}/awsswitch.sh" use "$1" && eval "$("${AWSSWITCH_PATH}/awsswitch.sh" eval)"
