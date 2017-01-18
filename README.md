@@ -11,10 +11,9 @@ Installation
 Clone this repository somewhere comfortable on your workstation. There are four environment variables which configure the scripts. Define these as you wish and then source the `init.sh` script in your `.profile`.
 
  * `AWSSWITCH_PATH` points to the location you cloned this repository
- * `AWSSWITCH_KEYS` points to a yaml file containing your AWS keys
  * `AWSSWITCH_S3CFG` set to `true` if you want the script to update your `.s3cfg`
  * `AWSSWITCH_FOG` set to `true` if you want the script to update your `.fog`
- * `AWSSWITCH_CONFIG` can be set to `awscli` to read credentials from the [AWS configuration files](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files)
+ * `AWSSWITCH_CONFIG` can be set to `awscli` to read credentials from the [AWS configuration files]()
 
 #### `.profile` Example
 ```
@@ -37,17 +36,7 @@ eval $("${AWSSWITCH_PATH}/awsswitch.sh" eval)
 AWS Configuration
 -----------------
 
-The AWS configuration is stored in a simple yaml file. It is a list of id/secret pairs prefixed by a comment with the name of the AWS account. The comment is the name referenced when switching AWS accounts.
-
-```
-#my-aws
-- id: My Key
-  secret: My Secret
-  region: Default Region
-...
-```
-
-You can also set the `AWSSWITCH_CONFIG` variable to `awscli` to just use the normal AWS configuration files.
+The AWS configuration is pulled from the AWS CLI. You can read more about that [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
 
 Script Actions
 --------------

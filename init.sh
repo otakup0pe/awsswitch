@@ -9,7 +9,7 @@ function awsswitch()
         if [ "${AWS}" = "none" ] ; then
             rm "${HOME}/.awsaccount" &> /dev/null
         else
-            if [ "$AWSSWITCH_CONFIG" != "awscli" ] && ! grep -e "${AWS}" "${HOME}/.aws.yml" &> /dev/null ; then
+            if ! grep -e "$AWS" "${HOME}/.aws/credentials" &> /dev/null ; then
                 echo "invalid aws"
             else
                 "${AWSSWITCH_PATH}/awsswitch.sh" use "$1" && eval "$("${AWSSWITCH_PATH}/awsswitch.sh" eval)"

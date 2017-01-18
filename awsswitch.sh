@@ -10,18 +10,13 @@ function usage {
     exit 1
 }
 
-if [ "$AWSSWITCH_CONFIG" != "awscli" ] && [ "$AWSSWITCH_KEYS" == "" ] ; then
-    problems "AWSSWITCH_KEYS is not defined"
-    exit 1
-fi
-
 AWSSWITCH_CURRENT="${HOME}/.awsaccount"
 if [ "$AWS_AUTO_SCALING_HOME" != "" ] ; then
     AWS_AUTOSCALE_CREDENTIAL_FILE=${AWS_AUTO_SCALING_HOME}/creds
 fi
 
 function aws_list {
-    grep -e '^#[^ ]' "$AWSSWITCH_KEYS" | cut -c 2-
+    grep -E "^\[.+\]$" ~/.aws/credentials | sed -e 's!\[!!g' -e 's!\]!!g'
 }
 
 function aws_use {
@@ -31,35 +26,26 @@ function aws_use {
     else
         T="${TMPDIR}/awsswitch${RANDOM}"
     fi
-    if [ "$AWSSWITCH_CONFIG" == "awscli" ] ; then
-        REGION=$(grep -A 1 -E "^\[profile ${NAME}\]$" "${HOME}/.aws/config" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
-        # default region if not in config file.
-        if [ -z "$REGION" ]; then
-          REGION="us-east-1"
-        fi
-
-        KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
-        SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
-        if [ -z "$REGION" ] || \
-               [ -z "$KEY" ] || \
-               [ -z "$SECRET" ] ; then
-           problems "awsaccount not found"
-        fi
-        cat <<EOF > "$T"
+    REGION=$(grep -A 1 -E "^\[profile ${NAME}\]$" "${HOME}/.aws/config" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+    # default region if not in config file.
+    if [ -z "$REGION" ]; then
+        REGION="us-east-1"
+    fi
+    
+    KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
+    SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+    if [ -z "$REGION" ] || \
+           [ -z "$KEY" ] || \
+           [ -z "$SECRET" ] ; then
+        problems "awsaccount not found"
+    fi
+    cat <<EOF > "$T"
 #${NAME}
   - id: "${KEY}"
     secret: "${SECRET}"
     region: "${REGION}"
 EOF
-        mv "$T" "$AWSSWITCH_CURRENT" ; chmod 0600 "$AWSSWITCH_CURRENT"
-    else
-        if grep -A 3 -e "^#${NAME}$" "$AWSSWITCH_KEYS" &> "$T" ; then
-            mv "$T" "$AWSSWITCH_CURRENT" ; chmod 0600 "$AWSSWITCH_CURRENT"
-        else
-            rm -f "$T"
-            problems "awsaccount not found"
-        fi
-    fi
+    mv "$T" "$AWSSWITCH_CURRENT" ; chmod 0600 "$AWSSWITCH_CURRENT"
 }
 
 function aws_eval {
