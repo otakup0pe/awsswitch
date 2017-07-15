@@ -5,6 +5,7 @@ test: .bats
 	for file in *.sh ; do \
 		docker run --rm -v $(CURDIR):/mnt nlknguyen/alpine-shellcheck /mnt/$$file || exit ; \
 	done
+	sleep 299
 
 .bats-git:
 	git clone --depth=1 https://github.com/sstephenson/bats.git .bats-git
