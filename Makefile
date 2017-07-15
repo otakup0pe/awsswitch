@@ -1,9 +1,11 @@
+SCC = "nlknguyen/alpine-shellcheck:latest"
 all: test
 
 test: .bats
 # start with some docker shellcheck
+	docker pull $(SCC)
 	for file in *.sh ; do \
-		docker run --rm -v $(CURDIR):/mnt nlknguyen/alpine-shellcheck /mnt/$$file || exit ; \
+		docker run --rm -v $(CURDIR):/mnt $(SCC) /mnt/$$file || exit ; \
 	done
 	sleep 299
 

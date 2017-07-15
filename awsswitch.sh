@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# dunnae care about grep escaping
+# shellcheck disable=SC1117
 
 function problems {
     echo "ERROR $1"
@@ -31,7 +33,6 @@ function aws_use {
     if [ -z "$REGION" ]; then
         REGION="us-east-1"
     fi
-    
     KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
     SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
     if [ -z "$REGION" ] || \
