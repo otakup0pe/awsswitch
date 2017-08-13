@@ -16,7 +16,7 @@ if [ "$AWS_AUTO_SCALING_HOME" != "" ] ; then
 fi
 
 function aws_list {
-    grep -E "^\[.+\]$" ~/.aws/credentials | sed -e 's!\[!!g' -e 's!\]!!g'
+    grep -E '^\[.+\]$' ~/.aws/credentials | sed -e 's!\[!!g' -e 's!\]!!g'
 }
 
 function aws_use {
@@ -26,14 +26,14 @@ function aws_use {
     else
         T="${TMPDIR}/awsswitch${RANDOM}"
     fi
-    REGION=$(grep -A 1 -E "^\[profile ${NAME}\]$" "${HOME}/.aws/config" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+    REGION=$(grep -A 1 -E "^\\[profile ${NAME}\\]$" "${HOME}/.aws/config" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
     # default region if not in config file.
     if [ -z "$REGION" ]; then
         REGION="us-east-1"
     fi
     
-    KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
-    SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+    KEY=$(grep -A 2 -E "^\\[${NAME}\\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
+    SECRET=$(grep -A 2 -E "^\\[${NAME}\\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
     if [ -z "$REGION" ] || \
            [ -z "$KEY" ] || \
            [ -z "$SECRET" ] ; then
