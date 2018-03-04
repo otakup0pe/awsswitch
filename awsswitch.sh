@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 function problems {
     echo "ERROR $1"
     exit 1
@@ -21,6 +20,8 @@ function aws_list {
 
 function aws_use {
     NAME="$1"
+    MFA_TOKEN_CODE="$2"
+    DURATION=129600
     if [ -z "$TMPDIR" ] ; then
         T="/tmp/awsswitch${RANDOM}"
     else
@@ -31,9 +32,18 @@ function aws_use {
     if [ -z "$REGION" ]; then
         REGION="us-east-1"
     fi
-    
-    KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
-    SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+    if [ -z "$MFA_TOKEN_CODE" ] ; then
+        KEY=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 2 | head -n 1 | cut -f 2 -d '=')
+        SECRET=$(grep -A 2 -E "^\[${NAME}\]$" "${HOME}/.aws/credentials" 2> /dev/null | tail -n 1 | cut -f 2 -d '=')
+    else
+        ARN_OF_MFA=$(aws --profile ${NAME} iam --output text list-mfa-devices|awk '{ print $3 }')
+        CREDENTIALS="$( aws --profile ${NAME} sts get-session-token \
+        --duration $DURATION  \
+        --serial-number $ARN_OF_MFA \
+        --token-code $MFA_TOKEN_CODE \
+        --output text  | awk '{ print $2, $4, $5 }')"
+        read KEY SECRET TOKEN <<< "$CREDENTIALS"
+    fi
     if [ -z "$REGION" ] || \
            [ -z "$KEY" ] || \
            [ -z "$SECRET" ] ; then
@@ -44,15 +54,17 @@ function aws_use {
   - id: "${KEY}"
     secret: "${SECRET}"
     region: "${REGION}"
+    token: "${TOKEN}"
 EOF
     mv "$T" "$AWSSWITCH_CURRENT" ; chmod 0600 "$AWSSWITCH_CURRENT"
 }
 
 function aws_eval {
     if [ -e "$AWSSWITCH_CURRENT" ] ; then
-        REGION="$(tail -n 1 "$AWSSWITCH_CURRENT" | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
-        KEY="$(tail -n 3 "$AWSSWITCH_CURRENT" | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
-        SECRET="$(tail -n 2 "$AWSSWITCH_CURRENT" | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        REGION="$(sed -n 4p "$AWSSWITCH_CURRENT" | cut -f 2 -d ':' | tr -d '[:space:]')"
+        KEY="$(sed -n 2p "$AWSSWITCH_CURRENT" | cut -f 2 -d ':' | tr -d '[:space:]')"
+        SECRET="$(sed -n 3p "$AWSSWITCH_CURRENT" | cut -f 2 -d ':' | tr -d '[:space:]')"
+        TOKEN=$(sed -n 5p "$AWSSWITCH_CURRENT" | cut -f 2 -d ':' | tr -d '[:space:]')
         if [ "$AWS_SECRET_KEY" != "$SECRET" ] || [ -z "$AWS_DEFAULT_REGION" ] ; then
             echo "export AWS_DEFAULT_REGION=$REGION"
         fi
@@ -61,6 +73,8 @@ function aws_eval {
         echo "export AWS_SECRET_ACCESS_KEY=$SECRET"
         echo "export AWS_ACCESS_KEY=$KEY"
         echo "export AWS_SECRET_KEY=$SECRET"
+        echo "export AWS_SESSION_TOKEN=$TOKEN"
+        echo "export AWS_SECURITY_TOKEN=$TOKEN"
         echo "export EC2_REGION=$AWS_DEFAULT_REGION"
 
         if [ ! -z "$AWS_AUTOSCALE_CREDENTIAL_FILE" ] ; then
@@ -86,9 +100,9 @@ function aws_eval {
     fi
 }
 
-if [ $# == 2 ] ; then
+if [ $# == 2 ] || [ $# == 3 ] ; then
     if [ "$1" == "use" ] ; then
-        aws_use "$2"
+        aws_use "$2" "$3"
     else
         usage
     fi
