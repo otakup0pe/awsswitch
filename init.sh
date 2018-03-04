@@ -12,7 +12,7 @@ function awsswitch()
             if ! grep -e "$AWS" "${HOME}/.aws/credentials" &> /dev/null ; then
                 echo "invalid aws"
             else
-                "${AWSSWITCH_PATH}/awsswitch.sh" use "$1" && eval "$("${AWSSWITCH_PATH}/awsswitch.sh" eval)"
+                "${AWSSWITCH_PATH}/awsswitch.sh" use "$1" "$2" && eval "$("${AWSSWITCH_PATH}/awsswitch.sh" eval)"
             fi
         fi
     fi
