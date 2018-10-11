@@ -53,9 +53,11 @@ function aws_eval {
         REGION="$(tail -n 1 "$AWSSWITCH_CURRENT" | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
         KEY="$(tail -n 3 "$AWSSWITCH_CURRENT" | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
         SECRET="$(tail -n 2 "$AWSSWITCH_CURRENT" | head -n 1 | cut -f 2 -d ':' | sed -e 's! !!g; s!\"!!g')"
+        PROFILE="$(head -n 1 "$AWSSWITCH_CURRENT" | cut -c 2-)"
         if [ "$AWS_SECRET_KEY" != "$SECRET" ] || [ -z "$AWS_DEFAULT_REGION" ] ; then
             echo "export AWS_DEFAULT_REGION=$REGION"
         fi
+        echo "export AWS_PROFILE=${PROFILE}"
         echo "export AWS_ACCOUNT=$(head -n 1 "$AWSSWITCH_CURRENT" | cut -f 2 -d '#')"
         echo "export AWS_ACCESS_KEY_ID=$KEY"
         echo "export AWS_SECRET_ACCESS_KEY=$SECRET"
