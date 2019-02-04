@@ -1,9 +1,15 @@
+[![Build Status](https://travis-ci.org/otakup0pe/awsswitch.svg?branch=master)](https://travis-ci.org/otakup0pe/awsswitch)![Maintenance](https://img.shields.io/maintenance/yes/2019.svg)
+
 AWS Switch
 ==========
 
-These scripts represent my approach for sanely working with multiple AWS accounts. When in use it will keep appropriate AWS related environment variables, and, optionally, certain configuration files up to date with the appropriate AWS keys. Only one AWS account may be active at a time and this is synchronized across login sessions for a given user on the local host.
+These scripts represent my approach for sanely working with multiple AWS accounts. When in use they will keep appropriate AWS related environment variables, and optionally, certain configuration files up to date with the appropriate AWS keys. Only one AWS account may be active at a time and this is synchronized across login sessions for a given user on the local host.
 
-I [wrote](http://blog.eghetto.ca/post/112089594641/juggling-clouds) about how I ended up with this workflow.
+The scripts also support cross-account STS role assumption, including configurable renewal of credentials.
+
+These scripts probably only work on Bash 4 and greater these days. They have been tested on mostly Ubuntu systems (both native and WSL) along with recent-ish macOS.
+
+I [wrote](http://blog.jonathanfreedman.bio/post/112089594641/juggling-clouds) about how I ended up with this workflow.
 
 Installation
 ------------
@@ -14,13 +20,15 @@ Clone this repository somewhere comfortable on your workstation. There are four 
  * `AWSSWITCH_S3CFG` set to `true` if you want the script to update your `.s3cfg`
  * `AWSSWITCH_FOG` set to `true` if you want the script to update your `.fog`
  * `AWSSWITCH_CONFIG` can be set to `awscli` to read credentials from the [AWS configuration files]()
+ * `AWSSWITCH_STS_RENEW` should be an integer which indicates how close to expiration to renew STS credentials.
 
 #### `.profile` Example
 ```
 export AWSSWITCH_PATH="${HOME}/src/awsswitch"
 export AWSSWITCH_KEYS="${HOME}/.aws.yml"
 export AWSSWITCH_S3CFG="true"
-export AWSSWITCH_FOG="true"
+export AWSSWITCH_FOG="false"
+export AWSSWITCH_STS_RENEW=900
 
 . "${AWSSWITCH_PATH}/init.sh"
 ```
@@ -30,13 +38,13 @@ There is an additional component that is meant to be eval'd in the `PS1_COMMAND`
 #### eval Example
 
 ```
-eval $("${AWSSWITCH_PATH}/awsswitch.sh" eval)
+eval "$("${AWSSWITCH_PATH}/awsswitch.sh" eval)"
 ```
 
 AWS Configuration
 -----------------
 
-The AWS configuration is pulled from the AWS CLI. You can read more about that [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
+AWS configuration is pulled from the AWS CLI. You can read more about that [here](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
 
 Script Actions
 --------------
@@ -77,8 +85,17 @@ default:
 Usage
 -----
 
-Once you have initialized the script in your `.profile` usage is dead simple. Simply make use of the `awsswitch` function and reference one of the sets of AWS keys in your YAML configuration. This will then cause your current terminal context to be re-initialized. For example, to switch to the `my-aws` AWS account you would invoke `awsswitch my-aws`.
+Once you have initialized the script in your `.profile` usage is straight forward. Simply make use of the `awsswitch` function and reference one of your defined AWS profiles. This will then cause your current terminal context to be re-initialized. For example, to switch to the `my-aws` AWS account you would invoke `awsswitch my-aws`.
 
 Other terminal contexts will _not_ be re-initialized until the next time the `PS1_COMMAND` context is evaluated. The `awsregion` function may be used to change the effective AWS region for the _current_ shell only. This override is lost upon switching AWS accounts.
 
 This is where the inclusion of the `AWS_ACCOUNT` variable in your bash prompt is helpful as you can easily know which AWS account is currently active.
+
+License
+-----
+
+[MIT](https://github.com/otakup0pe/awsswitch/blob/master/LICENSE)
+
+Author
+-----
+The awsswitch tool was created by [Jonathan Freedman](http://jonathanfreedman.bio/).

@@ -3,7 +3,7 @@ all: test
 test: .bats
 # start with some docker shellcheck
 	for file in *.sh ; do \
-		docker run --rm -v $(CURDIR):/mnt nlknguyen/alpine-shellcheck /mnt/$$file || exit ; \
+		docker run --rm -v $(CURDIR):/mnt koalaman/shellcheck /mnt/$$file || exit ; \
 	done
 
 .bats-git:
