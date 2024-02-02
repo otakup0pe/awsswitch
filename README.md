@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/otakup0pe/awsswitch.svg?branch=master)](https://travis-ci.org/otakup0pe/awsswitch)![Maintenance](https://img.shields.io/maintenance/yes/2019.svg)
+[![Build Status](https://travis-ci.org/otakup0pe/awsswitch.svg?branch=master)](https://travis-ci.org/otakup0pe/awsswitch)![Maintenance](https://img.shields.io/maintenance/yes/2024.svg)
 
 AWS Switch
 ==========
