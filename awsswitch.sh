@@ -103,17 +103,15 @@ EOF
         local ROLE
         local PARENT
         ROLE="$(awk 'BEGIN{FS="="}/role_arn/{gsub(/[ \t]?/, "", $2);print $2}' <<< "$CONFIG")"
-        PARENT="$(awk 'BEGIN{FS="="}/source_profile/{gsub(/[ \t]?/, "", $2);print $2}' <<< "$CONFIG")"        
+        PARENT="$(awk 'BEGIN{FS="="}/source_profile/{gsub(/[ \t]?/, "", $2);print $2}' <<< "$CONFIG")"
         assume_a_role "$NAME" "$ROLE" "$PARENT" "$REGION"
     fi
 }
 
 function unset_aws {
-    cat <<EOF 
+    cat <<EOF
 export AWS_ACCOUNT=none
 unset -v AWS_DEFAULT_REGION
-unset -v REGION
-unset -v EC2_REGION
 unset -v AWS_PROFILE
 unset -v AWS_ACCESS_KEY_ID
 unset -v AWS_ACCESS_KEY
@@ -146,8 +144,6 @@ function aws_eval {
             echo "export AWS_DEFAULT_REGION=$REGION        # aws cli / standard"
         fi
         cat <<EOF
-        export REGION=$REGION                    # deprecated
-        export EC2_REGION=$AWS_DEFAULT_REGION    # deprecated
         export AWS_PROFILE=$NAME                 # aws cli / standard
         export AWS_ACCOUNT=$NAME                 # internal
 EOF
@@ -160,7 +156,7 @@ EOF
             if [ -z "$AWSSWITCH_STS_RENEW" ] ; then
                 AWSSWITCH_STS_RENEW=300
             fi
-            if [ $((EXPIRY - NOW)) -lt $AWSSWITCH_STS_RENEW ] ; then
+            if [ $((EXPIRY - NOW)) -lt "$AWSSWITCH_STS_RENEW" ] ; then
                 if [ -z "$TMPDIR" ] ; then
                     T="/tmp/awsswitch-renew${RANDOM}"
                 else
